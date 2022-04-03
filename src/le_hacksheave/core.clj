@@ -1,11 +1,13 @@
 (ns le-hacksheave.core
   (:require [clj-http.client :as http]
             [clojure.edn :as edn]
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [hugsql.core :as hugsql])
   (:gen-class))
 
-;; ummm I think we want to collect here a local database? or at least start
-;; collecting it because you'll have to cross it with RYM
+(declare create-albums-table-if-not-exists)
+(declare insert-albums)
+(hugsql/def-db-fns "le_hacksheave/core.sql")
 
 (def lastfm-api-url "http://ws.audioscrobbler.com/2.0/")
 
@@ -36,25 +38,53 @@
         acc-albums
         (recur (inc page) (concat acc-albums albums))))))
 
+(defn album->row
+  "Extract the name, artist, and cover art from an album fetched via Last.fm's API.
+  These are the details we want to save into our database"
+  [album]
+  [;; title
+   (get album "name")
+   ;; artist
+   (-> album
+       (get "artist")
+       (get "name"))
+   ;; cover art url
+   ;; `last` picks the highest resultion picture
+   (-> album
+       (get "image")
+       (last)
+       (get "#text"))])
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& _args]
-  ())
+  (let [db {:classname "org.sqlite.JDBC"
+            :subprotocol "sqlite"
+            :subname "le-hacksheave.sqlite3"}
+        _ (create-albums-table-if-not-exists db)
+        conf (-> "env.edn"
+                 slurp
+                 edn/read-string)
+        niche-albums (fetch-niche-albums (:api-key conf)
+                                         "jpegaga"
+                                         (:min-playcount conf)
+                                         (:start-from-page conf))
+        to-insert (map album->row niche-albums)]
+    (insert-albums db {:albums to-insert})))
 
 (comment
   (def conf
     (-> "env.edn"
         slurp
         edn/read-string))
-  (def top-albums
-    (fetch-top-albums (:api-key conf) "jpegaga" (:start-from-page conf)))
-  (-> top-albums
-      :body
-      json/parse-string
-      (get "topalbums")
-      (get "album"))
   (def niche-albums
     (fetch-niche-albums (:api-key conf)
                         "jpegaga"
                         (:min-playcount conf)
-                        (:start-from-page conf))))
+                        (:start-from-page conf)))
+  (def to-insert (map album->row niche-albums))
+  (def db
+    {:classname "org.sqlite.JDBC"
+     :subprotocol "sqlite"
+     :subname "le-hacksheave.sqlite3"})
+  (insert-albums db {:albums [["a" "b" "c"]]}))

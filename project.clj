@@ -6,7 +6,9 @@
   :dependencies [[org.clojure/clojure "1.10.3"]
                  [clj-http "3.12.3"]
                  [enlive "1.1.6"]
-                 [cheshire "5.10.2"]]
+                 [cheshire "5.10.2"]
+                 [com.layerware/hugsql "0.5.3"]
+                 [org.xerial/sqlite-jdbc "3.36.0.3"]]
   :main ^:skip-aot le-hacksheave.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
