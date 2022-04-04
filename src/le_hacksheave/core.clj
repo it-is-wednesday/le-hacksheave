@@ -7,6 +7,7 @@
 
 (declare create-albums-table-if-not-exists)
 (declare insert-albums)
+(declare random-album)
 (hugsql/def-db-fns "le_hacksheave/core.sql")
 
 (def lastfm-api-url "http://ws.audioscrobbler.com/2.0/")

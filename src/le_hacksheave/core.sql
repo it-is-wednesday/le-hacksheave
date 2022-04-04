@@ -10,3 +10,12 @@ CREATE TABLE IF NOT EXISTS Album (name TEXT, artist TEXT, cover_art_url TEXT)
 -- :doc Insert albums to the Albums table
 INSERT INTO Album (name, artist, cover_art_url)
 VALUES :tuple*:albums
+
+-- :name random-album
+-- :command :query
+-- :result :one
+-- :doc Pick a random album
+SELECT *
+  FROM Album
+ ORDER BY RANDOM()
+ LIMIT 1
