@@ -2,7 +2,8 @@
   (:require [clj-http.client :as http]
             [clojure.edn :as edn]
             [cheshire.core :as json]
-            [hugsql.core :as hugsql])
+            [hugsql.core :as hugsql]
+            [le-hacksheave.rym :as rym])
   (:gen-class))
 
 (declare create-albums-table-if-not-exists)
@@ -88,4 +89,5 @@
     {:classname "org.sqlite.JDBC"
      :subprotocol "sqlite"
      :subname "le-hacksheave.sqlite3"})
-  (insert-albums db {:albums [["a" "b" "c"]]}))
+  (insert-albums db {:albums [["a" "b" "c"]]})
+  (rym/fetch-album-genres ))
