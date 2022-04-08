@@ -4,6 +4,12 @@
 -- :doc Create albums table
 CREATE TABLE IF NOT EXISTS Album (name TEXT, artist TEXT, cover_art_url TEXT)
 
+-- :name clear-albums
+-- :command execute
+-- :result :raw
+-- :doc Delete all rows from Album
+DELETE FROM Album WHERE 1
+
 -- :name insert-albums
 -- :command :insert
 -- :result :affected

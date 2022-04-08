@@ -14,23 +14,6 @@
                             "period" "overall"
                             "page" page}}))
 
-(defn fetch-niche-albums
-  [api-key user min-playcount page]
-  (loop [page page
-         acc-albums []]
-    (let [albums (-> (fetch-top-albums api-key user page)
-                     :body
-                     json/parse-string
-                     (get "topalbums")
-                     (get "album"))]
-      (if (< (-> albums
-                 last
-                 (get "playcount")
-                 Integer/parseInt)
-             min-playcount)
-        acc-albums
-        (recur (inc page) (concat acc-albums albums))))))
-
 (defn album->row
   "Extract the name, artist, and cover art from an album fetched via Last.fm's API.
   These are the details we want to save into our database"
@@ -47,6 +30,23 @@
        (get "image")
        (last)
        (get "#text"))])
+
+(defn fetch-niche-albums
+  [api-key user min-playcount page]
+  (loop [page page
+         acc-albums []]
+    (let [albums (-> (fetch-top-albums api-key user page)
+                     :body
+                     json/parse-string
+                     (get "topalbums")
+                     (get "album"))]
+      (if (< (-> albums
+                 last
+                 (get "playcount")
+                 Integer/parseInt)
+             min-playcount)
+        acc-albums
+        (recur (inc page) (concat acc-albums albums))))))
 
 (comment
   (require '[clojure.edn :as edn])
