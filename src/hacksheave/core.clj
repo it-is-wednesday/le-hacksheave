@@ -6,8 +6,6 @@
             [clojure.string :as string])
   (:gen-class))
 
-(declare create-albums-table-if-not-exists)
-(declare clear-albums)
 (declare insert-albums)
 (declare random-album)
 (hugsql/def-db-fns "hacksheave/sql/hug-funcs.sql")
@@ -24,7 +22,6 @@
 
 (defn scrape
   []
-  (clear-albums db)
   (let [albums (apply lastfm/fetch-niche-albums (vals conf))
         rows (map lastfm/album->row albums)]
     (insert-albums db {:albums rows})))
@@ -36,9 +33,17 @@
        (string/join "\n")
        println))
 
+(def usage
+  "Usage: hacksheave COMMAND
+Available commands:
+
+  scrape - Swift through your Last.fm page, saving niche albums into an SQLite3 file
+  pick - Print a random album from the scraped ones")
+
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  ((match (vec args)
-     ["scrape"] scrape
-     ["pick"] pick)))
+  (match (vec args)
+    ["scrape"] (scrape)
+    ["pick"] (pick)
+    :else (println usage)))

@@ -1,4 +1,4 @@
-(ns hacksheave.rym
+(ns hacksheave.scrape.rym
   "RateYourMusic scraper, scraping the results page and genres from a release
   page"
   (:require [clj-http.client :as http]

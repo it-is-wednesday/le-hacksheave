@@ -9,9 +9,10 @@ WHERE 1;
 -- :command :insert
 -- :result :affected
 -- :doc Insert albums to the Albums table
-INSERT INTO Album (name, artist, cover_art_url)
-    VALUES
-        :tuple * :albums;
+INSERT
+    OR IGNORE INTO Album (name, artist, cover_art_url)
+        VALUES
+            :tuple*:albums;
 
 -- :name random-album
 -- :command :query
