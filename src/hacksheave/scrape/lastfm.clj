@@ -29,7 +29,9 @@
    (-> album
        (get "image")
        (last)
-       (get "#text"))])
+       (get "#text"))
+   ;; origin
+   "lastfm"])
 
 (defn fetch-niche-albums
   [api-key user min-playcount page]

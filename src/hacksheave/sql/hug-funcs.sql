@@ -10,7 +10,7 @@ WHERE 1;
 -- :result :affected
 -- :doc Insert albums to the Albums table
 INSERT
-    OR IGNORE INTO Album (name, artist, cover_art_url)
+    OR IGNORE INTO Album (name, artist, cover_art_url, origin)
         VALUES
             :tuple*:albums;
 
