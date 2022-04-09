@@ -10,7 +10,7 @@
 (declare clear-albums)
 (declare insert-albums)
 (declare random-album)
-(hugsql/def-db-fns "le_hacksheave/core.sql")
+(hugsql/def-db-fns "le_hacksheave/sql/hug-funcs.sql")
 
 (def db
   {:classname "org.sqlite.JDBC"
