@@ -1,4 +1,4 @@
-(defproject le-hacksheave "0.1.0-SNAPSHOT"
+(defproject hacksheave "0.1.0-SNAPSHOT"
   :description "FIXME: write description"
   :url "http://example.com/FIXME"
   :license {:name "EPL-2.0 OR GPL-2.0-or-later WITH Classpath-exception-2.0"
@@ -11,7 +11,7 @@
                  [org.xerial/sqlite-jdbc "3.36.0.3"]
                  [reaver "0.1.3"]
                  [org.clojure/core.match "1.0.0"]]
-  :main ^:skip-aot le-hacksheave.core
+  :main ^:skip-aot hacksheave.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})

@@ -1,17 +1,24 @@
-(ns le-hacksheave.rym
+(ns hacksheave.rym
   "RateYourMusic scraper, scraping the results page and genres from a release
   page"
   (:require [clj-http.client :as http]
             [reaver :as r]))
 
+(defn genre-url->id
+  "Extracts an ID out of RYM genre URL, for example:
+  `/genre/contemporary-randb/` -> `contemporary-randb`"
+  [url]
+  (second (re-find #"/genre/(.*)/" url)))
+
 (defn- genres
   "Extract main genre(s) from given release page, along with links to the
   genres' pages"
   [page]
-  (r/extract-from page
-                  ".release_pri_genres .genre" [:genre :url]
-                  "a" r/text
-                  "a" (r/attr :href)))
+  (for [genre (r/extract-from page
+                              ".release_pri_genres .genre" [:genre :url]
+                              "a" r/text
+                              "a" (r/attr :href))]
+    (assoc genre :id (genre-url->id (:url genre)))))
 
 (defn- first-result
   "Extract the first search result from the search results page. Returns a map
@@ -38,7 +45,7 @@
 (defn fetch-album-genres
   [{:keys [title artist]}]
   (let [result (search-album title artist)]
-    (print result)
+    (println result)
     (genres (-> result
                 :url
                 http/get

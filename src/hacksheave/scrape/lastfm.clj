@@ -1,4 +1,4 @@
-(ns le-hacksheave.scrape.lastfm
+(ns hacksheave.scrape.lastfm
   (:require [clj-http.client :as http]
             [cheshire.core :as json]))
 

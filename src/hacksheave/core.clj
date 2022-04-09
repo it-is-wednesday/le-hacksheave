@@ -1,7 +1,7 @@
-(ns le-hacksheave.core
+(ns hacksheave.core
   (:require [clojure.edn :as edn]
             [hugsql.core :as hugsql]
-            [le-hacksheave.scrape.lastfm :as lastfm]
+            [hacksheave.scrape.lastfm :as lastfm]
             [clojure.core.match :refer [match]]
             [clojure.string :as string])
   (:gen-class))
@@ -10,12 +10,12 @@
 (declare clear-albums)
 (declare insert-albums)
 (declare random-album)
-(hugsql/def-db-fns "le_hacksheave/sql/hug-funcs.sql")
+(hugsql/def-db-fns "hacksheave/sql/hug-funcs.sql")
 
 (def db
   {:classname "org.sqlite.JDBC"
    :subprotocol "sqlite"
-   :subname "le-hacksheave.sqlite3"})
+   :subname "hacksheave.sqlite3"})
 
 (def conf
   (-> "env.edn"
