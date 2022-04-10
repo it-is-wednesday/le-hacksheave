@@ -1,7 +1,6 @@
 CREATE TABLE IF NOT EXISTS Genre (
     name text,
-    url text,
-    pages_count integer, -- number of pages of albums in the RYM genre page
+    page_count integer, -- number of pages of albums in the RYM genre page
     id text PRIMARY KEY
 );
 

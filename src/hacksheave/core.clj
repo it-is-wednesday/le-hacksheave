@@ -1,19 +1,10 @@
 (ns hacksheave.core
   (:require [clojure.edn :as edn]
-            [hugsql.core :as hugsql]
-            [hacksheave.scrape.lastfm :as lastfm]
             [clojure.core.match :refer [match]]
-            [clojure.string :as string])
+            [clojure.string :as string]
+            [hacksheave.db :as db]
+            [hacksheave.scrape.lastfm :as lastfm])
   (:gen-class))
-
-(declare insert-albums)
-(declare random-album)
-(hugsql/def-db-fns "hacksheave/sql/hug-funcs.sql")
-
-(def db
-  {:classname "org.sqlite.JDBC"
-   :subprotocol "sqlite"
-   :subname "hacksheave.sqlite3"})
 
 (def conf
   (-> "env.edn"
@@ -22,13 +13,13 @@
 
 (defn scrape
   []
-  (let [albums (apply lastfm/fetch-niche-albums (vals conf))
+  (let [albums (lastfm/fetch-niche-albums (:lastfm conf))
         rows (map lastfm/album->row albums)]
-    (insert-albums db {:albums rows})))
+    (db/insert-albums db/spec {:albums rows})))
 
 (defn pick
   []
-  (->> (random-album db)
+  (->> (db/random-album db/spec)
        vals
        (string/join "\n")
        println))

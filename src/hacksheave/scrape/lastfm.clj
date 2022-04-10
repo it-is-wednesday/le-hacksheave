@@ -34,8 +34,8 @@
    "lastfm"])
 
 (defn fetch-niche-albums
-  [api-key user min-playcount page]
-  (loop [page page
+  [{:keys [api-key user min-playcount start-from-page]}]
+  (loop [page start-from-page
          acc-albums []]
     (let [albums (-> (fetch-top-albums api-key user page)
                      :body

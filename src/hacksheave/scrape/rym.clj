@@ -1,75 +1,60 @@
 (ns hacksheave.scrape.rym
   "RateYourMusic scraper, scraping the results page and genres from a release
   page"
-  (:require [clj-http.client :as http]
+  (:import (org.jsoup.nodes Document))
+  (:require [hacksheave.db :as db]
+            [clj-http.client :as http]
             [reaver :as r]))
 
-(defn genre-url->id
+(def genre-page-url-format
+  "There's one format parameter: the genre id"
+  "https://rateyourmusic.com/charts/diverse/album/all-time/g:%s/exc:live,archival/%d")
+
+(defn- genre-url->id
   "Extracts an ID out of RYM genre URL, for example:
   `/genre/contemporary-randb/` -> `contemporary-randb`"
   [url]
   (second (re-find #"/genre/(.*)/" url)))
 
-(defn- genres
-  "Extract main genre(s) from given release page, along with links to the
-  genres' pages"
-  [page]
-  (for [genre (r/extract-from page
-                              ".release_pri_genres .genre" [:genre :url]
-                              "a" r/text
-                              "a" (r/attr :href))]
-    (assoc genre :id (genre-url->id (:url genre)))))
-
-(defn- first-result
-  "Extract the first search result from the search results page. Returns a map
-  of artist name, title name and RYM page of the release"
-  [page]
-  (-> (r/extract-from page
-                      ".page_search_results table table table td" [:artist
-                                                                   :title :url]
-                      ".artist" r/text
-                      "i a" r/text
-                      "i a" (r/attr :href))
+(defn- genre-page-count
+  "Return the number of pages of albums a genre has, given any page out of the
+  genre pages."
+  [^Document page]
+  (-> page
+      (r/extract-from "#ui_pagination_pages_page_chart_top" []
+                      ".ui_pagination_number" r/text)
       first
-      (update :url (partial str "https://rateyourmusic.com"))))
+      last
+      Integer/parseInt))
 
-(defn- search-album
-  [title artist]
-  (-> (http/get "https://rateyourmusic.com/search"
-                {:query-params {"searchterm" (format "%s - %s" artist title)
-                                "searchtype" "l"}})
+(defn- albums-in-genre-page
+  [page]
+  (r/extract-from page
+                  ".chart_results .topcharts_textbox_top" [:title :artist]
+                  ".release" r/text
+                  ".artist" r/text))
+
+(defn- fetch-page-count
+  [genre-id]
+  (-> (format genre-page-url-format genre-id 1)
+      http/get
       :body
       r/parse
-      first-result))
+      genre-page-count))
 
-(defn fetch-album-genres
-  [{:keys [title artist]}]
-  (let [result (search-album title artist)]
-    (println result)
-    (genres (-> result
-                :url
-                http/get
-                :body
-                r/parse))))
+(defn- get-page-count-or-fetch
+  [genre-id]
+  (let [{c :page_count} (db/get-genre-page-count db/spec {:id genre-id})]
+    (or c (fetch-page-count genre-id))))
 
-(comment
-  (def page
-    (:body (http/get "https://rateyourmusic.com/search"
-                     {:query-params {"searchterm" "Kali Uchis - Isolation"
-                                     "searchtype" "l"}})))
-  (def p (r/parse page))
-  (first (r/select p ".infobox"))
-  (first (r/extract-from p
-                         ".page_search_results table table table td"
-                           [:artist :title :url]
-                         ".artist" r/text
-                         "i a" r/text
-                         "i a" (r/attr :href)))
-  (search-album "Isolation" "Kali Uchis")
-  (def isolation-page
-    (-> (http/get
-          "https://rateyourmusic.com/release/album/kali-uchis/isolation/")
-        :body
-        r/parse))
-  (genres isolation-page)
-  (fetch-album-genres {:title "Isolation" :artist "Kali Uchis"}))
+(defn pick-some-albums-from-genre
+  [genre-id]
+  (let [page-count (get-page-count-or-fetch genre-id)
+        ;; picks & downloads a random page between 1 and `page-count`
+        page (-> (format genre-page-url-format
+                         genre-id
+                         (inc (rand-int page-count)))
+                 http/get
+                 :body
+                 r/parse)]
+    (albums-in-genre-page page)))
