@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS Genre (
     name text,
-    page_count integer, -- number of pages of albums in the RYM genre page
-    id text PRIMARY KEY
+    id text PRIMARY KEY,
+    page_count integer -- number of pages of albums in the RYM genre page
 );
 
 CREATE TABLE IF NOT EXISTS Album (

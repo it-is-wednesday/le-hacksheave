@@ -9,4 +9,5 @@
 (declare insert-albums)
 (declare random-album)
 (declare get-genre-page-count)
+(declare insert-genre)
 (hugsql/def-db-fns "hacksheave/sql/hug-funcs.sql")
