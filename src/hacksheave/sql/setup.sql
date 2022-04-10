@@ -5,15 +5,15 @@ CREATE TABLE IF NOT EXISTS Genre (
 );
 
 CREATE TABLE IF NOT EXISTS Album (
-    name text,
+    title text,
     artist text,
     cover_art_url text,
     origin text CHECK (origin IN ('lastfm', 'rym')),
-    PRIMARY KEY (name, artist)
+    PRIMARY KEY (title, artist) ON CONFLICT IGNORE
 );
 
 CREATE TABLE IF NOT EXISTS AlbumGenre (
-    name text,
+    title text,
     artist text,
     genre_id text,
     FOREIGN KEY (genre_id) REFERENCES Genre (genre_id)

@@ -3,8 +3,13 @@
             [clojure.core.match :refer [match]]
             [clojure.string :as string]
             [hacksheave.db :as db]
-            [hacksheave.scrape.lastfm :as lastfm])
+            [hacksheave.scrape.lastfm :as lastfm]
+            [hacksheave.scrape.rym :as rym])
   (:gen-class))
+
+(defn album->row
+  [{:keys [title artist cover origin]}]
+  [title artist cover origin])
 
 (def conf
   (-> "env.edn"
@@ -13,9 +18,11 @@
 
 (defn scrape
   []
-  (let [albums (lastfm/fetch-niche-albums (:lastfm conf))
-        rows (map lastfm/album->row albums)]
-    (db/insert-albums db/spec {:albums rows})))
+  (db/wipe-albums db/spec)
+  (let [lastfm-albums (lastfm/fetch-niche-albums (:lastfm conf))
+        rym-albums (rym/fetch-niche-albums (:rateyourmusic conf))
+        all-albums (concat rym-albums lastfm-albums)]
+    (db/insert-albums db/spec {:albums (map album->row all-albums)})))
 
 (defn pick
   []
@@ -38,3 +45,14 @@ Available commands:
     ["scrape"] (scrape)
     ["pick"] (pick)
     :else (println usage)))
+
+(comment
+  (def lastfm-albums (lastfm/fetch-niche-albums (:lastfm conf)))
+  (def rym-albums (rym/fetch-niche-albums (:rateyourmusic conf)))
+  (->> (concat rym-albums lastfm-albums)
+       (map :origin)
+       set)
+  ()
+  (db/insert-albums db/spec
+                    {:albums (map album->row
+                               (concat rym-albums lastfm-albums))}))

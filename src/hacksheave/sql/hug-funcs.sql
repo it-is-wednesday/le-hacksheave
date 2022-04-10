@@ -1,4 +1,4 @@
--- :name clear-albums :execute :raw
+-- :name wipe-albums :execute :raw
 -- :doc Delete all rows from Album
 
 DELETE
@@ -8,9 +8,7 @@ WHERE 1;
 -- :name insert-albums :insert :affected
 -- :doc Insert albums to the Albums table
 
-INSERT
-OR
-IGNORE INTO Album (name, artist, cover_art_url, origin)
+INSERT INTO Album (title, artist, cover_art_url, origin)
 VALUES :tuple*:albums;
 
 -- :name random-album :query :one
