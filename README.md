@@ -16,3 +16,14 @@ Also, initiate the Sqlite3 DB file:
 ``` shell
 sqlite3 hacksheave.sqlite3 < src/hacksheave/sql/setup.sql
 ```
+
+## Usage
+Populate the database:
+``` shell
+lein run scrape
+```
+
+Now, to pick a random album:
+``` shell
+lein run pick
+```
